@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+  $currentDoctor = $doctors->firstWhere('id', $doctorId);
+@endphp
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h4 class="mb-0">Agenda — Dr./Dra. {{ $currentDoctor->name ?? session('doctor_name') }}</h4>
+    <div class="text-muted">Fecha: {{ \Carbon\Carbon::parse($date)->locale('es')->isoFormat('dddd D [de] MMMM YYYY') }}</div>
+  </div>
+</div>
+
 <div class="row g-3 align-items-end mb-3">
   <div class="col-md-4">
     <label class="form-label">Fecha</label>

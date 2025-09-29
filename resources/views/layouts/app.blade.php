@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Centro Médico del Milagro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
@@ -21,13 +22,25 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="/paciente">Paciente</a></li>
-        <li class="nav-item"><a class="nav-link" href="/admin">Administrador</a></li>
-        <li class="nav-item"><a class="nav-link" href="/medico">Médico</a></li>
+        @unless(request()->routeIs('patient.*', 'appointments.*', 'admin.*') || session('patient_id') || session('role')==='admin')
+          <li class="nav-item"><a class="nav-link" href="{{ route('doctor.access') }}">Médico</a></li>
+        @endunless
+        @if(session('role')==='admin' && !session('patient_id'))
+          <li class="nav-item"><a class="nav-link" href="/admin/acceso">Admin</a></li>
+        @endif
       </ul>
       <ul class="navbar-nav ms-auto">
         @if(session('role')==='admin')
-          <li class="nav-item"><span class="navbar-text me-2">Conectado: Admin</span></li>
+          @php($ad = session('admin'))
+          <li class="nav-item"><span class="navbar-text me-2">
+            Conectado: {{ trim(($ad['first_name'] ?? '').' '.($ad['last_name'] ?? '')) ?: 'Admin' }}
+            @if(!empty($ad['username']))
+              <span class="text-light text-opacity-75">[{{ '@'.$ad['username'] }}]</span>
+            @endif
+            @if(!empty($ad['email']))
+              <span class="text-light text-opacity-75">({{ $ad['email'] }})</span>
+            @endif
+          </span></li>
           <li class="nav-item">
             <form method="POST" action="{{ route('logout') }}">
               @csrf
@@ -35,16 +48,31 @@
             </form>
           </li>
         @elseif(session('role')==='doctor')
-          <li class="nav-item"><span class="navbar-text me-2">Conectado: Médico #{{ session('doctor_id') }}</span></li>
+          <li class="nav-item"><span class="navbar-text me-2">
+            Conectado: {{ session('doctor_name') ? 'Dr./Dra. '.session('doctor_name') : 'Médico #'.session('doctor_id') }}
+          </span></li>
           <li class="nav-item">
             <form method="POST" action="{{ route('logout') }}">
               @csrf
               <button class="btn btn-sm btn-light" type="submit">Cerrar sesión</button>
             </form>
           </li>
-        @else
-          <li class="nav-item"><a class="nav-link" href="/login/admin">Login Admin</a></li>
-          <li class="nav-item"><a class="nav-link" href="/login/medico">Login Médico</a></li>
+        @elseif(session('patient_id'))
+          @php($pg = session('patient_google'))
+          <li class="nav-item">
+            <span class="navbar-text me-2">
+              Paciente: {{ $pg['first_name'] ?? '' }} {{ $pg['last_name'] ?? '' }}
+              @if(!empty($pg['email']))
+                <span class="text-light text-opacity-75">({{ $pg['email'] }})</span>
+              @endif
+            </span>
+          </li>
+          <li class="nav-item">
+            <form method="POST" action="{{ route('patient.logout') }}">
+              @csrf
+              <button class="btn btn-sm btn-light" type="submit">Cerrar sesión</button>
+            </form>
+          </li>
         @endif
       </ul>
     </div>

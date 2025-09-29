@@ -19,6 +19,7 @@
         <th>Teléfono</th>
         <th>Especialidad</th>
         <th>Médico</th>
+        <th>Obra social</th>
         <th>Estado</th>
         <th>Acciones</th>
       </tr>
@@ -32,6 +33,7 @@
           <td>{{ $a->phone }}</td>
           <td>{{ $a->doctor->specialty->name }}</td>
           <td>{{ $a->doctor->name }}</td>
+          <td>{{ $a->has_insurance ? ($a->insurance_name ?: 'Con cobertura') : 'Sin obra social' }}</td>
           <td>
             @php
               $badge = [
@@ -43,7 +45,7 @@
             @endphp
             <span class="badge text-bg-{{ $badge }}">{{ ucfirst($a->status) }}</span>
           </td>
-          <td class="d-flex gap-2">
+          <td class="d-flex flex-wrap gap-2">
             @if($a->status === 'requested')
               <form method="POST" action="{{ route('reception.arrived', $a) }}">
                 @csrf
@@ -56,6 +58,12 @@
                 <button class="btn btn-sm btn-success" type="submit">Confirmar pago</button>
               </form>
             @endif
+            <a href="{{ route('reception.edit', $a) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+            <form method="POST" action="{{ route('reception.destroy', $a) }}" onsubmit="return confirm('¿Eliminar este turno? Esta acción no se puede deshacer.');">
+              @csrf
+              @method('DELETE')
+              <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
+            </form>
           </td>
         </tr>
       @empty

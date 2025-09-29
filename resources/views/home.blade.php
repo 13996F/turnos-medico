@@ -1,41 +1,27 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="row g-4">
-  <div class="col-md-4">
-    <div class="card h-100">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Paciente</h5>
-        <p class="card-text">Solicitá tu turno de manera rápida y sencilla.</p>
-        <a href="/paciente" class="btn btn-primary mt-auto">Ir a Paciente</a>
-      </div>
+<section class="py-5 text-center">
+  <div class="py-5">
+    <h1 class="display-5 fw-bold">Solicitá tu turno médico</h1>
+    <p class="col-lg-6 mx-auto fs-5 text-muted mt-3">
+      Gestioná tu turno de manera simple y rápida. Sin distracciones.
+    </p>
+    <div class="d-inline-flex gap-2 mt-4">
+      <a href="/paciente" class="btn btn-primary btn-lg px-4">Comenzar</a>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card h-100">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Administrador</h5>
-        <p class="card-text">Confirmá asistencia y pago de los pacientes.</p>
-        @if(session('role')==='admin')
-          <a href="/admin" class="btn btn-success mt-auto">Ir al Panel</a>
-        @else
-          <a href="/login/admin" class="btn btn-outline-primary mt-auto">Iniciar sesión</a>
-        @endif
-      </div>
-    </div>
+  <div class="text-muted mt-4 small">
+    Centro Médico del Milagro
   </div>
-  <div class="col-md-4">
-    <div class="card h-100">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Médico</h5>
-        <p class="card-text">Visualizá tus pacientes del día.</p>
-        @if(session('role')==='doctor')
-          <a href="/medico" class="btn btn-success mt-auto">Ir al Panel</a>
-        @else
-          <a href="/login/medico" class="btn btn-outline-primary mt-auto">Iniciar sesión</a>
-        @endif
-      </div>
+  @if(session('role')==='admin')
+    <div class="mt-3">
+      <a class="btn btn-outline-success btn-sm" href="/admin">Ir al panel de Administración</a>
     </div>
-  </div>
-</div>
+  @elseif(session('role')==='doctor')
+    <div class="mt-3">
+      <a class="btn btn-outline-success btn-sm" href="/medico">Ir al panel del Médico</a>
+    </div>
+  @endif
+</section>
 @endsection
