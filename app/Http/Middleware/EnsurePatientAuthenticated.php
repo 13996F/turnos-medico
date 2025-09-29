@@ -6,12 +6,13 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsureDoctor
+class EnsurePatientAuthenticated
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (session('role') !== 'doctor' || !session()->has('doctor_id')) {
-            return redirect()->route('doctor.access')->withErrors(['auth' => 'Debes iniciar sesión como Médico.']);
+        if (!$request->session()->has('patient_id')) {
+            return redirect()->route('patient.access')
+                ->withErrors(['auth' => 'Necesitás iniciar sesión para solicitar un turno.']);
         }
         return $next($request);
     }
