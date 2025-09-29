@@ -18,8 +18,8 @@ Route::get('/', function () {
 
 // Paciente: acceso con login normal y Google (sin recuperación de contraseña)
 Route::get('/acceso', [PatientAuthController::class, 'access'])->name('patient.access');
-Route::post('/acceso/registro', [PatientAuthController::class, 'register'])->name('patient.register');
-Route::post('/acceso/login', [PatientAuthController::class, 'login'])->name('patient.login');
+Route::post('/acceso/registro', [PatientAuthController::class, 'register'])->name('patient.register')->middleware('throttle:5,1');
+Route::post('/acceso/login', [PatientAuthController::class, 'login'])->name('patient.login')->middleware('throttle:5,1');
 Route::post('/acceso/logout', [PatientAuthController::class, 'logout'])->name('patient.logout');
 // Google para Paciente
 Route::get('/auth/google', [PatientAuthController::class, 'redirectToGoogle'])->name('patient.google.redirect');
@@ -54,8 +54,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Admin con usuarios propios (similar a Paciente)
 Route::prefix('/admin')->group(function () {
     Route::get('/acceso', [AdminAuthController::class, 'access'])->name('admin.access');
-    Route::post('/registro', [AdminAuthController::class, 'register'])->name('admin.register');
-    Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login');
+    Route::post('/registro', [AdminAuthController::class, 'register'])->name('admin.register')->middleware('throttle:5,1');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login')->middleware('throttle:5,1');
     // Google para Admin
     Route::get('/google', [AdminAuthController::class, 'googleRedirect'])->name('admin.google.redirect');
     Route::get('/google/callback', [AdminAuthController::class, 'googleCallback'])->name('admin.google.callback');
@@ -79,9 +79,10 @@ Route::prefix('/medico')->middleware('doctor')->group(function () {
 // Médico: acceso/registro/login
 Route::prefix('/medico')->group(function () {
     Route::get('/acceso', [DoctorAuthController::class, 'access'])->name('doctor.access');
-    Route::post('/registro', [DoctorAuthController::class, 'register'])->name('doctor.register');
-    Route::post('/login', [DoctorAuthController::class, 'login'])->name('doctor.login');
+    Route::post('/registro', [DoctorAuthController::class, 'register'])->name('doctor.register')->middleware('throttle:5,1');
+    Route::post('/login', [DoctorAuthController::class, 'login'])->name('doctor.login')->middleware('throttle:5,1');
     // Google para Médico
     Route::get('/google', [DoctorAuthController::class, 'googleRedirect'])->name('doctor.google.redirect');
     Route::get('/google/callback', [DoctorAuthController::class, 'googleCallback'])->name('doctor.google.callback');
 });
+

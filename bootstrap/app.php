@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'doctor' => \App\Http\Middleware\EnsureDoctor::class,
             'patient' => \App\Http\Middleware\EnsurePatientAuthenticated::class,
         ]);
+        // Global security headers
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
