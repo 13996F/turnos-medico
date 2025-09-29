@@ -17,8 +17,14 @@ class SecurityHeaders
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-        // CSP básica; ajusta según necesidades de recursos (img-src, script-src, etc.)
-        $csp = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'";
+        // CSP: permitir recursos locales y CDNs usados (Bootstrap, Bootstrap Icons, Fonts Bunny)
+        $csp = "default-src 'self'; "
+            . "script-src 'self' https://cdn.jsdelivr.net; "
+            . "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.bunny.net; "
+            . "font-src 'self' https://cdn.jsdelivr.net https://fonts.bunny.net data:; "
+            . "img-src 'self' data:; "
+            . "connect-src 'self'; "
+            . "frame-ancestors 'self'";
         $response->headers->set('Content-Security-Policy', $csp);
 
         // HSTS solo en producción y con HTTPS
@@ -30,3 +36,4 @@ class SecurityHeaders
         return $response;
     }
 }
+
