@@ -21,8 +21,10 @@ jobs:
           extensions: mbstring, dom, sqlite, pdo_sqlite
           coverage: none
 
-      - name: Install Composer dependencies
-        run: composer install --no-progress --prefer-dist --no-interaction
+      - name: Install Composer dependencies (cached)
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --no-progress --no-interaction --prefer-dist
 
       - name: Prepare environment
         run: |

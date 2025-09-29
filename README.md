@@ -4,6 +4,8 @@
 
 # Sistema de Turnos Médicos — Centro Médico del Milagro
 
+![CI](https://github.com/13996F/turnos-medico/actions/workflows/laravel-ci.yml/badge.svg)
+
 Aplicación Laravel para gestionar turnos médicos: registro de usuarios, agenda de profesionales, turnos, y panel de administración.
 
 ## Requisitos
@@ -33,6 +35,8 @@ Aplicación Laravel para gestionar turnos médicos: registro de usuarios, agenda
    php artisan key:generate
    ```
    - Por defecto `.env.example` usa SQLite. Para usar MySQL, descomenta y configura `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.
+   - Mail (opcional): configura `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION`, `MAIL_FROM_ADDRESS`.
+   - Almacenamiento: ejecuta `php artisan storage:link` si sirves archivos públicos.
 
 4. Migraciones y seeders (si aplica)
    ```bash
@@ -64,10 +68,48 @@ Aplicación Laravel para gestionar turnos médicos: registro de usuarios, agenda
 
 Se incluye un workflow de GitHub Actions para ejecutar pruebas en cada push/PR. Ver `.github/workflows/laravel-ci.yml`.
 
+## Autenticación y roles
+
+- Roles soportados: `Admin`, `Doctor`, `Patient`.
+- Controladores clave:
+  - `app/Http/Controllers/AdminAuthController.php`
+  - `app/Http/Controllers/DoctorAuthController.php`
+  - `app/Http/Controllers/PatientAuthController.php`
+  - `app/Http/Controllers/PatientPasswordController.php`
+- Ajusta rutas en `routes/web.php` para páginas de login/registro según tus necesidades.
+
+## Datos de prueba (opcional)
+
+Si agregas seeders, podrás crear usuarios demo. Ejemplo de comandos:
+```bash
+php artisan migrate:fresh --seed
+```
+Luego inicia sesión con las credenciales documentadas en tus seeders.
+
+## Despliegue (resumen)
+
+- Configura `.env` para producción (APP_ENV=production, APP_DEBUG=false, base de datos, mail, etc.).
+- Ejecuta `php artisan migrate --force` en el servidor.
+- Compila assets: `npm run build`.
+- Opcional: `php artisan config:cache && php artisan route:cache && php artisan view:cache`.
+
+## Solución de problemas
+
+- Errores de permisos en `storage/` o `bootstrap/cache/`: asegúrate de que el usuario del servidor tenga permisos de escritura.
+- Si usas SQLite y falla la migración en CI/local, verifica que el archivo `database/database.sqlite` exista y que la ruta en `DB_DATABASE` apunte correctamente.
+- En Windows, si aparece un error de rutas simbólicas, ejecuta la terminal como administrador para `php artisan storage:link`.
+
 ## Seguridad
 
 - Nunca subas el archivo `.env` (está ignorado por `.gitignore`).
 - Revisa y personaliza `.env.example` para documentar variables necesarias sin exponer secretos.
+
+## Contribución
+
+Los cambios se aceptan mediante Pull Requests. Antes de abrir un PR:
+- Ejecuta `composer install && npm install`.
+- Asegúrate de que `php artisan test` pase en local.
+- Describe claramente el cambio y su motivación.
 
 ## Licencia
 
