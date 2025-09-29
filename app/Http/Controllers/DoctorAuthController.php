@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 class DoctorAuthController extends Controller
 {
@@ -49,7 +52,15 @@ class DoctorAuthController extends Controller
             'doctor_name' => $doctor->name,
         ]);
 
-        return redirect()->route('doctor.index')->with('success', 'Cuenta de médico creada y sesión iniciada.');
+        // Enviar email de verificación
+        $url = URL::temporarySignedRoute(
+            'verification.doctor.verify', now()->addMinutes(60),
+            ['id' => $doctor->id, 'hash' => sha1(Str::lower($doctor->email))]
+        );
+        Mail::raw("Verificá tu email ingresando al siguiente enlace:\n\n{$url}\n\nEste enlace expira en 60 minutos.", function ($message) use ($doctor) {
+            $message->to($doctor->email)->subject('Verificá tu email - Centro Médico del Milagro');
+        });
+        return redirect()->route('verification.doctor.notice')->with('success', 'Te enviamos un email para verificar tu cuenta.');
     }
 
     public function login(Request $request): RedirectResponse
@@ -69,7 +80,9 @@ class DoctorAuthController extends Controller
             'doctor_id' => $doctor->id,
             'doctor_name' => $doctor->name,
         ]);
-
+        if (empty($doctor->email_verified_at)) {
+            return redirect()->route('verification.doctor.notice')->withErrors(['verify' => 'Debes verificar tu email para acceder a tu agenda.']);
+        }
         return redirect()->route('doctor.index')->with('success', 'Sesión iniciada como Médico.');
     }
 

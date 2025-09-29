@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class AdminAuthController extends Controller
 {
@@ -55,7 +57,15 @@ class AdminAuthController extends Controller
             'email'      => $admin->email,
             'username'   => $admin->username,
         ]]);
-        return redirect()->route('reception.index')->with('success', 'Administrador creado y sesión iniciada. Tu usuario es: '.$admin->username);
+        // Enviar email de verificación
+        $url = URL::temporarySignedRoute(
+            'verification.admin.verify', now()->addMinutes(60),
+            ['id' => $admin->id, 'hash' => sha1(Str::lower($admin->email))]
+        );
+        Mail::raw("Verificá tu email ingresando al siguiente enlace:\n\n{$url}\n\nEste enlace expira en 60 minutos.", function ($message) use ($admin) {
+            $message->to($admin->email)->subject('Verificá tu email - Centro Médico del Milagro');
+        });
+        return redirect()->route('verification.admin.notice')->with('success', 'Te enviamos un email para verificar tu cuenta.');
     }
 
     public function login(Request $request): RedirectResponse
@@ -77,6 +87,9 @@ class AdminAuthController extends Controller
             'email'      => $admin->email,
             'username'   => $admin->username,
         ]]);
+        if (empty($admin->email_verified_at)) {
+            return redirect()->route('verification.admin.notice')->withErrors(['verify' => 'Debes verificar tu email para acceder al panel.']);
+        }
         return redirect()->route('reception.index')->with('success', 'Sesión iniciada como Administrador.');
     }
 

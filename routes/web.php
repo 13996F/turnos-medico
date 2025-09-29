@@ -11,6 +11,7 @@ use App\Http\Controllers\PatientAuthController;
 use App\Http\Controllers\PatientPasswordController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\DoctorAuthController;
+use App\Http\Controllers\EmailVerificationController;
 
 // Named rate limiter for login/registro attempts
 RateLimiter::for('login', function ($request) {
@@ -72,6 +73,13 @@ Route::prefix('/admin')->group(function () {
     // Google para Admin
     Route::get('/google', [AdminAuthController::class, 'googleRedirect'])->name('admin.google.redirect');
     Route::get('/google/callback', [AdminAuthController::class, 'googleCallback'])->name('admin.google.callback');
+
+    // Verificación de email (Admin)
+    Route::get('/verificar', [EmailVerificationController::class, 'adminNotice'])->name('verification.admin.notice');
+    Route::post('/verificar/enviar', [EmailVerificationController::class, 'sendAdmin'])->name('verification.admin.send');
+    Route::get('/verificar/{id}/{hash}', [EmailVerificationController::class, 'verifyAdmin'])
+        ->middleware('signed')
+        ->name('verification.admin.verify');
 });
 
 // Administrador/Recepción: listar por fecha, marcar llegada y pago
@@ -97,5 +105,12 @@ Route::prefix('/medico')->group(function () {
     // Google para Médico
     Route::get('/google', [DoctorAuthController::class, 'googleRedirect'])->name('doctor.google.redirect');
     Route::get('/google/callback', [DoctorAuthController::class, 'googleCallback'])->name('doctor.google.callback');
+
+    // Verificación de email (Doctor)
+    Route::get('/verificar', [EmailVerificationController::class, 'doctorNotice'])->name('verification.doctor.notice');
+    Route::post('/verificar/enviar', [EmailVerificationController::class, 'sendDoctor'])->name('verification.doctor.send');
+    Route::get('/verificar/{id}/{hash}', [EmailVerificationController::class, 'verifyDoctor'])
+        ->middleware('signed')
+        ->name('verification.doctor.verify');
 });
 
